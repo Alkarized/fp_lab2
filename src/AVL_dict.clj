@@ -210,8 +210,8 @@
 (def x1 (add-node xx 20 16))
 (def x2 (remove-node x1 13))
 
-(def x3 (fold-left x1 (fn [acc k v] (+ acc v)) 0))
-(def x4 (fold-right x1 (fn [acc k v] (+ acc v)) 0))
+(def x3 (fold-left x1 (fn [acc k v] (+ acc v (* k 0))) 0))
+(def x4 (fold-right x1 (fn [acc k v] (+ acc v (* k 0))) 0))
 
 x3
 x4
@@ -244,7 +244,7 @@ sseq
 (def mapped-tree (map-tree xx (fn [k v] {:key k :value (str "Value: " (+ 15 v))})))
 (to-print mapped-tree)
 
-(def filtered-tree (filter-tree xx (fn [k v] (< k 10))))
+(def filtered-tree (filter-tree xx (fn [k] (< k 10))))
 (to-print filtered-tree)
 
 ;; add unit tests
