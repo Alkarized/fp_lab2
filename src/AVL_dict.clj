@@ -73,7 +73,6 @@
     (let [new-node (node (:key tree) (:value tree) (:left tree) (rebalance (insert (:right tree) k v)))]
       (rebalance new-node))))
 
-
 (defn min-find [tree]
   (cond
     (nil? tree) nil
@@ -110,13 +109,11 @@
                              (:left tree)
                              (remove-min (:right tree)))))))
 
-
 (defn generate-seq [n max_v]
   (let [seq1 (repeatedly n #(rand-int max_v))
         seq2 (repeatedly n #(rand-int max_v))
         seq (shuffle (zipmap seq1 seq2))]
     seq))
-
 
 (defn generate-seq2 [n max_v]
   (let [seq1 (repeatedly n #(rand-int max_v))
@@ -184,7 +181,6 @@
          (equal-trees? (:left tree1) (:left tree2))
          (equal-trees? (:right tree1) (:right tree2)))))
 
-
 (defn tabs [n]
   (clojure.string/join (repeat n "      ")))
 
@@ -220,7 +216,6 @@
 x3
 x4
 
-
 (to-print xx)
 (to-print x1)
 (to-print x2)
@@ -251,7 +246,6 @@ sseq
 
 (def filtered-tree (filter-tree xx (fn [k v] (< k 10))))
 (to-print filtered-tree)
-
 
 ;; add unit tests
 ;; add property-based test
