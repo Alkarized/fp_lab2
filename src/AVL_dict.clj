@@ -1,4 +1,5 @@
-(ns AVL-dict)
+(ns AVL-dict
+  (:require [clojure.string :as str]))
 
 (defn node [k v left right]
   {:key   k
@@ -182,7 +183,7 @@
          (equal-trees? (:right tree1) (:right tree2)))))
 
 (defn tabs [n]
-  (clojure.string/join (repeat n "      ")))
+  (str/join (repeat n "      ")))
 
 (defn to-print
   ([tree] (to-print "" tree))
@@ -244,7 +245,7 @@ sseq
 (def mapped-tree (map-tree xx (fn [k v] {:key k :value (str "Value: " (+ 15 v))})))
 (to-print mapped-tree)
 
-(def filtered-tree (filter-tree xx (fn [k] (< k 10))))
+(def filtered-tree (filter-tree xx (fn [k v] (and (< k 10) v))))
 (to-print filtered-tree)
 
 ;; add unit tests
