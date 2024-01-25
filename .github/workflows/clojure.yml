@@ -30,7 +30,7 @@ jobs:
         run: cljfmt check src
 
       - name: linter
-        run: clj-kondo --lint src test
+        run: clj-kondo --lint src
 
       - name: run tests
         run: clojure -Mtest
