@@ -113,7 +113,7 @@
 (defn generate-seq [n max_v]
   (let [seq1 (repeatedly n #(rand-int max_v))
         seq2 (repeatedly n #(rand-int max_v))
-        seq (shuffle (zipmap seq1 seq2))]
+        seq (zipmap seq1 seq2)]
     seq))
 
 (defn generate-seq2 [n max_v]
@@ -169,7 +169,7 @@
 (defn merge-insert [tree1 tree2]
   (cond
     (nil? tree1) tree2
-    (nil? tree2) tree2
+    (nil? tree2) tree1
     :else (fold-left tree1 (fn [acc k v] (add-node acc k v)) tree2)))
 
 (defn equal-trees?
@@ -205,48 +205,48 @@
 (defn to-print2 [tree]
   (print (visualise tree)))
 
-(def seq1 (generate-seq 3 30))
-(print seq1)
-(def xx (to-tree seq1))
-(def x1 (add-node xx 20 16))
-(def x2 (remove-node x1 13))
+;; (def seq1 (generate-seq 3 30))
+;; (print seq1)
+;; (def xx (to-tree seq1))
+;; (def x1 (add-node xx 20 16))
+;; (def x2 (remove-node x1 13))
 
-(def x3 (fold-left x1 (fn [acc k v] (+ acc v (* k 0))) 0))
-(def x4 (fold-right x1 (fn [acc k v] (+ acc v (* k 0))) 0))
+;; (def x3 (fold-left x1 (fn [acc k v] (+ acc v (* k 0))) 0))
+;; (def x4 (fold-right x1 (fn [acc k v] (+ acc v (* k 0))) 0))
 
-x3
-x4
+;; x3
+;; x4
 
-(to-print xx)
-(to-print x1)
-(to-print x2)
+;; (to-print xx)
+;; (to-print x1)
+;; (to-print x2)
 
-(def sseq  (generate-seq2 5 10))
-sseq
-(def seq11 (first sseq))
-(def seq12 (second sseq))
-(def xx1 (to-tree seq11))
-(def xx2 (to-tree seq12))
-(to-print xx1)
-(to-print xx2)
+;; (def sseq  (generate-seq2 5 10))
+;; sseq
+;; (def seq11 (first sseq))
+;; (def seq12 (second sseq))
+;; (def xx1 (to-tree seq11))
+;; (def xx2 (to-tree seq12))
+;; (to-print xx1)
+;; (to-print xx2)
 
-(def x5 (merge-insert xx nil))
-(def x6 (merge-insert nil xx))
-(to-print xx)
-(to-print x5)
-(to-print x6)
+;; (def x5 (merge-insert xx nil))
+;; (def x6 (merge-insert nil xx))
+;; (to-print xx)
+;; (to-print x5)
+;; (to-print x6)
 
-(= x5 x6)
+;; (= x5 x6)
 
-(min-find xx)
+;; (min-find xx)
 
-(to-print xx)
+;; (to-print xx)
 
-(def mapped-tree (map-tree xx (fn [k v] {:key k :value (str "Value: " (+ 15 v))})))
-(to-print mapped-tree)
+;; (def mapped-tree (map-tree xx (fn [k v] {:key k :value (str "Value: " (+ 15 v))})))
+;; (to-print mapped-tree)
 
-(def filtered-tree (filter-tree xx (fn [k v] (and (< k 10) v))))
-(to-print filtered-tree)
+;; (def filtered-tree (filter-tree xx (fn [k v] (and (< k 10) v))))
+;; (to-print filtered-tree)
 
 ;; add unit tests
 ;; add property-based test
