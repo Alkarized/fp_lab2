@@ -126,7 +126,6 @@
 (defn to-tree [seq]
   (reduce (fn [tree [k v]] (insert tree k v)) nil seq))
 
-
 (defn remove-node [tree key]
   (remove-elem tree key))
 
@@ -138,7 +137,6 @@
       (assoc (f (:key tree) (:value tree))
              :left left
              :right right))))
-
 
 (defn fold-left [tree f init]
   (if (nil? tree)
