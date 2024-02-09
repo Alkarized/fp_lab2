@@ -8,12 +8,13 @@
             [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :refer [defspec]]))
 
-(def seq1 [[1 2] [3 1] [61 3]])
+(def seq1 [["bas" 2] ["asddgsa" 1] ["61" 3]])
 (def tree (avl/to-tree seq1))
 
 (deftest testings
   (testing "ez_way"
-    (is (= 1 1))))
+    (is (= 1 1))
+    (is (not (avl/contains tree "asg")))))
 
 (defspec sort-is-idempotent 100
   (prop/for-all [v (gen/vector gen/small-integer)]

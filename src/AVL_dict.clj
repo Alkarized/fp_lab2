@@ -126,8 +126,6 @@
 (defn to-tree [seq]
   (reduce (fn [tree [k v]] (insert tree k v)) nil seq))
 
-(defn add-node [tree key value]
-  (insert tree key value))
 
 (defn remove-node [tree key]
   (remove-elem tree key))
@@ -141,14 +139,6 @@
              :left left
              :right right))))
 
-(defn filter-tree [tree predicate]
-  (if (nil? tree)
-    nil
-    (let [left (filter-tree (:left tree) predicate)
-          right (filter-tree (:right tree) predicate)]
-      (if (predicate (:key tree) (:value tree))
-        (assoc tree :left left :right right)
-        (merge left right)))))
 
 (defn fold-left [tree f init]
   (if (nil? tree)
@@ -170,7 +160,24 @@
   (cond
     (nil? tree1) tree2
     (nil? tree2) tree1
-    :else (fold-left tree1 (fn [acc k v] (add-node acc k v)) tree2)))
+    :else (fold-left tree1 (fn [acc k v] (insert acc k v)) tree2)))
+
+(defn filter-tree [tree predicate]
+  (if (nil? tree)
+    nil
+    (let [left (filter-tree (:left tree) predicate)
+          right (filter-tree (:right tree) predicate)]
+      (if (predicate (:key tree) (:value tree))
+        (rebalance (assoc tree :left left :right right))
+        (rebalance (merge-insert left right))))))
+
+;; (defn merge-with-insert [tree1 tree2]
+;;   (cond
+;;     (nil? tree1) tree2
+;;     :else
+;;     (let [updated-tree1 (merge-with-insert (:left tree1) tree2)
+;;           updated-tree2 (merge-with-insert (:right tree1) updated-tree1)]
+;;       (insert updated-tree2 (:key tree1) (:value tree1)))))
 
 (defn equal-trees?
   [tree1 tree2]
@@ -184,6 +191,9 @@
 
 (defn tabs [n]
   (str/join (repeat n "      ")))
+
+(defn insert-sequence [tree sequence]
+  (reduce (fn [acc [k v]] (insert acc k v)) tree sequence))
 
 (defn to-print
   ([tree] (to-print "" tree))
@@ -205,6 +215,20 @@
 (defn to-print2 [tree]
   (print (visualise tree)))
 
+(defn get-value [tree key]
+  (cond
+    (nil? tree) nil
+    (= (compare (:key tree) key) 0)
+    (:value tree)
+
+    (> (compare (:key tree) key) 0)
+    (get-value (:left tree) key)
+    (< (compare (:key tree) key) 0)
+    (get-value (:right tree) key)))
+
+(defn contains [tree key]
+  (if (nil? (get-value tree key)) false true))
+
 ;; (def seq1 (generate-seq 3 30))
 ;; (print seq1)
 ;; (def xx (to-tree seq1))
@@ -220,6 +244,8 @@
 ;; (to-print xx)
 ;; (to-print x1)
 ;; (to-print x2)
+
+;; (print (get-value x2 12))
 
 ;; (def sseq  (generate-seq2 5 10))
 ;; sseq
