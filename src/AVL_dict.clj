@@ -1,12 +1,14 @@
 (ns AVL-dict
   (:require [clojure.string :as str]))
 
+; Создание элемента дерева (корень/потомок)
 (defn node [k v left right]
   {:key   k
    :value v
    :left  left
    :right right})
 
+; Поиск высоты
 (defn height
   ([tree] (height tree 0))
   ([tree count]
@@ -15,31 +17,39 @@
           (height (:right tree) (inc count)))
      count)))
 
+; Главынй фактор абсолютная разница высот соседних вершин не превышает 1,  
 (defn factor [tree]
   (- (height (:left tree)) (height (:right tree))))
 
+; Левый случай. P.S Случай - проверка, надо ли нам перестравить дерево, что бы удовлетворяло условиям построения AVL
 (defn is-left-case? [tree]
   (< (factor tree) -1))
 
+; Левый-правый случай
 (defn is-left-right-case? [tree]
   (and (is-left-case? tree) (> (factor (:right tree)) 0)))
 
+; Правый случай
 (defn is-right-case? [tree]
   (> (factor tree) 1))
 
+; Правый-левый случай
 (defn is-right-left-case? [tree]
   (and (is-right-case? tree) (< (factor (:left tree)) 0)))
 
+; Левый поворот
 (defn rotate-left [tree]
   (let [Z (:right tree)
         Y' (:left Z)]
     (assoc Z :left (assoc tree :right Y'))))
 
+; Правый поворт
 (defn rotate-right [tree]
   (let [y (:left tree)
         t3 (:right y)]
     (assoc y :right (assoc tree :left t3))))
 
+; Проверка, необходимо ли нам повернуть как-то часть дерева, что бы оно было AVL
 (defn rebalance [tree]
   (cond
     (nil? tree) tree
@@ -58,6 +68,7 @@
 
     :else tree))
 
+; Вставка в дерево
 (defn insert [tree k v]
   (cond
     (nil? tree)
@@ -74,6 +85,7 @@
     (let [new-node (node (:key tree) (:value tree) (:left tree) (rebalance (insert (:right tree) k v)))]
       (rebalance new-node))))
 
+; Поиск минимального элемента
 (defn min-find [tree]
   (cond
     (nil? tree) nil
@@ -81,6 +93,7 @@
 
     :else (recur (:left tree))))
 
+; Вспомогательная функция - удаление минимального элемента 
 (defn remove-min [tree]
   (cond
     (and tree (nil? (:left tree))) (:right tree)
@@ -89,6 +102,7 @@
                            (remove-min (:left tree))
                            (:right tree)))))
 
+; Удаление элемента из дерева
 (defn remove-elem [tree key]
   (cond
     (nil? tree)
@@ -110,12 +124,14 @@
                              (:left tree)
                              (remove-min (:right tree)))))))
 
+; Вспомогательная функция - генерация последовательности
 (defn generate-seq [n max_v]
   (let [seq1 (repeatedly n #(rand-int max_v))
         seq2 (repeatedly n #(rand-int max_v))
         seq (zipmap seq1 seq2)]
     seq))
 
+; Вспомогательная функция - генерация последовательности
 (defn generate-seq2 [n max_v]
   (let [seq1 (repeatedly n #(rand-int max_v))
         seq2 (repeatedly n #(rand-int max_v))
@@ -123,12 +139,15 @@
         seq12 (shuffle (zipmap seq1 seq2))]
     [seq11 seq12]))
 
+; Создание дерева из последовательности
 (defn to-tree [seq]
   (reduce (fn [tree [k v]] (insert tree k v)) nil seq))
 
+; Обертка над удалением
 (defn remove-node [tree key]
   (remove-elem tree key))
 
+; Функция применения какой-то другой функции для всех элементов дерева
 (defn map-tree [tree f]
   (if (nil? tree)
     nil
@@ -138,6 +157,7 @@
              :left left
              :right right))))
 
+; Левая свертка
 (defn fold-left [tree f init]
   (if (nil? tree)
     init
@@ -146,6 +166,7 @@
           right-result (fold-left (:right tree) f left-result)]
       right-result)))
 
+; Правая свертка
 (defn fold-right [tree f init]
   (if (nil? tree)
     init
@@ -154,12 +175,14 @@
           left-result (fold-right (:left tree) f right-result)]
       left-result)))
 
+; Соединение (слияние) двух деревьев в одно единое 
 (defn merge-insert [tree1 tree2]
   (cond
     (nil? tree1) tree2
     (nil? tree2) tree1
     :else (fold-left tree1 (fn [acc k v] (insert acc k v)) tree2)))
 
+; Фильтрация элементов дерева
 (defn filter-tree [tree predicate]
   (if (nil? tree)
     nil
@@ -169,30 +192,27 @@
         (rebalance (assoc tree :left left :right right))
         (rebalance (merge-insert left right))))))
 
-;; (defn merge-with-insert [tree1 tree2]
-;;   (cond
-;;     (nil? tree1) tree2
-;;     :else
-;;     (let [updated-tree1 (merge-with-insert (:left tree1) tree2)
-;;           updated-tree2 (merge-with-insert (:right tree1) updated-tree1)]
-;;       (insert updated-tree2 (:key tree1) (:value tree1)))))
+; Превращение дерева в отсортированный список
+(defn to-sorted-list [tree]
+  (if (nil? tree) '()
+      (concat (to-sorted-list (:left tree))
+              [(:key tree) (:value tree)]
+              (to-sorted-list (:right tree)))))
 
+; Провека деревьев на содержание всех одинаковых элементов
 (defn equal-trees?
   [tree1 tree2]
-  (if (and (nil? tree1) (nil? tree2))
-    true
-    (and (not (nil? tree1))
-         (not (nil? tree2))
-         (= (:key tree1) (:key tree2))
-         (equal-trees? (:left tree1) (:left tree2))
-         (equal-trees? (:right tree1) (:right tree2)))))
+  (= (to-sorted-list tree1) (to-sorted-list tree2)))
 
+; Вспомогательная функция для вывода пробелом
 (defn tabs [n]
   (str/join (repeat n "      ")))
 
+; Вставка последовательности в дерево
 (defn insert-sequence [tree sequence]
   (reduce (fn [acc [k v]] (insert acc k v)) tree sequence))
 
+; Вывод дерева - 1ый вариант
 (defn to-print
   ([tree] (to-print "" tree))
   ([tabs tree]
@@ -203,6 +223,7 @@
      (to-print (str tabs "\t") (:right tree))
      (to-print (str tabs "\t") (:left tree)))))
 
+; Всопомгательаня функция для вывода дерева (2ой вариант)
 (defn visualise
   ([tree] (visualise tree 0))
   ([tree depth]
@@ -210,9 +231,11 @@
      (str (visualise (:right tree) (inc depth)) (tabs depth) (:key tree) ":" (:value tree) " (" (height tree) ")" "\n" (visualise (:left tree) (inc depth)))
      (str (tabs depth) "~\n"))))
 
+; Обертка над выводом дерева - 2ой вариант
 (defn to-print2 [tree]
   (print (visualise tree)))
 
+; Получение значения из дерева по ключу
 (defn get-value [tree key]
   (cond
     (nil? tree) nil
@@ -224,8 +247,37 @@
     (< (compare (:key tree) key) 0)
     (get-value (:right tree) key)))
 
+; Проверка, содержит ли данное дерево ключ
 (defn contains [tree key]
   (if (nil? (get-value tree key)) false true))
+
+; Вспомогательная функция - сбалансировано ли дерево - выполняется ли условия построения AVL-дерева
+(defn is-balanced? [tree]
+  (if (nil? tree) true
+      (let [left-h (height (:left tree))
+            right-h (height (:right tree))]
+        (and (<= (Math/abs (- left-h right-h)) 1)
+             (is-balanced? (:left tree))
+             (is-balanced? (:right tree))))))
+
+; Вспомогательная функция - бинарное ли дерево
+(defn binary-helper [node min-value max-value] ;; Работает только с целыми значениями в key
+  (if (nil? node) true
+      (and (and (<= (compare min-value (:key node)) 0) (>= (compare max-value (:key node)) 0))
+           (binary-helper (:left node) min-value (:key node))
+           (binary-helper (:right node) (:key node) max-value))))
+
+; Открытая обертка для проверки - является ли дерево бинарным
+(defn is-binary? [tree]
+  (binary-helper tree Long/MIN_VALUE Long/MAX_VALUE))
+
+; Валидное ли дерево - бинарное и сбалансированное? 
+(defn is-valid-tree? [tree]
+  (and (is-binary? tree) (is-balanced? tree)))
+
+;; Вспомогательная функция для проверки, что в дереве есть все элементы из данного списка
+(defn check-itmes [tree seq]
+  (every? (fn [[k v]] (= v (get-value tree k))) seq))
 
 ;; (def seq1 (generate-seq 3 30))
 ;; (print seq1)
